@@ -1,6 +1,6 @@
-.PHONY: clean fmt build test
+.PHONY: clean fmt build test run
 
-all: clean fmt build
+all: clean test build
 
 clean:
 	go clean
@@ -8,8 +8,11 @@ clean:
 fmt:
 	go fmt
 
+test:
+	go test -v ./...
+
 build: test
 	go build -o bin/rift
 
-test:
-	go test -v ./...
+run: build
+	./bin/rift

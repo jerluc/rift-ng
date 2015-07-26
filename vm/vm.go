@@ -2,6 +2,8 @@ package vm
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"github.com/jerluc/rift/rc"
 )
 
@@ -22,12 +24,21 @@ func NewVM() *VM {
 // Note that this should atomically replace all
 // active definitions of presently-referenced
 // dispatch points.
-func (v *VM) Load(rcFilePath string) {
-	rcFile, loadErr := rc.LoadFile(rcFilePath)
-	if loadErr != nil {
-		// TODO: Obviously do something better
-		panic("Ah shit")
+func (v *VM) LoadFile(rcFilePath string) {
+	file, openErr := os.Open(rcFilePath)
+	if openErr != nil {
+		panic(openErr)
 	}
 
-	fmt.Printf("I'm an RC file! %+v\n", rcFile)
+	v.Load(file)
+}
+
+func (v *VM) Load(rcStream io.Reader) {
+	rDef, loadErr := rc.LoadStream(rcStream)
+	if loadErr != nil {
+		// TODO: Obviously do something better
+		panic(loadErr)
+	}
+
+	fmt.Printf("Loaded RDef %+v\n", rDef)
 }
