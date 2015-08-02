@@ -8,10 +8,10 @@ import (
 const CurrentVersion = 1
 
 type RDef struct{
-	rcVersion uint8
-	defName   string
-	defType   uint8
-	data      []byte
+	Version uint8
+	Name    string
+	Type    uint8
+	Code    []byte
 }
 
 // Loads and parses an RC stream per the RC
@@ -31,7 +31,7 @@ type RDef struct{
 // but makes way less sense when it comes to
 // reading arbitrary streams off of a TCP socket
 func LoadStream(stream io.Reader) (*RDef, error) {
-	reader := binaryReader{stream}
+	reader := NewRCReader(stream)
 
 	// Check for the Rift header
 	if head := reader.ReadByte(); head != 'R' {
@@ -52,17 +52,17 @@ func LoadStream(stream io.Reader) (*RDef, error) {
 
 	defName := string(reader.ReadBytes(defNameLength))
 	defType := reader.ReadUInt8()
-	dataLength := reader.ReadUInt16()
-	data := reader.ReadBytes(int(dataLength))
+	codeLength := reader.ReadUInt16()
+	code := reader.ReadBytes(int(codeLength))
 
-	if tail := reader.ReadByte(); tail != 'R' {
-		return nil, fmt.Errorf("Missing RDef tail")
+	if !reader.Finished() {
+		return nil, fmt.Errorf("Corrupt RDef code section")
 	}
 
 	return &RDef{
 		rcVersion,
 		defName,
 		defType,
-		data,
+		code,
 	}, nil
 }

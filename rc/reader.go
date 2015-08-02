@@ -1,15 +1,20 @@
 package rc
 
 import (
+	"bufio"
 	"encoding/binary"
 	"io"
 )
 
-type binaryReader struct{
-	reader io.Reader
+type rcReader struct{
+	reader *bufio.Reader
 }
 
-var byteOrder = binary.LittleEndian
+var byteOrder = binary.BigEndian
+
+func NewRCReader(reader io.Reader) *rcReader {
+	return &rcReader{bufio.NewReader(reader)}
+}
 
 // Reads the next variable number of bytes
 // from the internal io.Reader, deserializing
@@ -17,37 +22,43 @@ var byteOrder = binary.LittleEndian
 //
 // Note that this assumes the input bytes are
 // serialized in Little Endian.
-func (r *binaryReader) Read(v interface{}) error {
+func (r *rcReader) Read(v interface{}) error {
 	err := binary.Read(r.reader, byteOrder, v)
 	return err
 }
 
-func (r *binaryReader) ReadByte() byte {
+func (r *rcReader) ReadByte() byte {
 	var n byte
 	r.Read(&n)
 	return n
 }
 
-func (r *binaryReader) ReadBytes(n int) []byte {
+func (r *rcReader) ReadBytes(n int) []byte {
 	b := make([]byte, n)
 	r.reader.Read(b)
 	return b
 }
 
-func (r *binaryReader) ReadUInt8() uint8 {
+func (r *rcReader) ReadUInt8() uint8 {
 	var n uint8
 	r.Read(&n)
 	return n
 }
 
-func (r *binaryReader) ReadUInt16() uint16 {
+func (r *rcReader) ReadUInt16() uint16 {
 	var n uint16
 	r.Read(&n)
 	return n
 }
 
-func (r *binaryReader) ReadUInt32() uint32 {
+func (r *rcReader) ReadUInt32() uint32 {
 	var n uint32
 	r.Read(&n)
 	return n
 }
+
+// TODO: Is this correct?
+func (r *rcReader) Finished() bool {
+	return r.reader.Buffered() == 0
+}
+
