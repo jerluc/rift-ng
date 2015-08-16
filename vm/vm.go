@@ -9,7 +9,6 @@ import (
 
 type VM struct{
 	state *vmState
-	itpr  *interpreter
 }
 
 // Constructs a new VM instance, doing all the

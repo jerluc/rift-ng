@@ -12,9 +12,12 @@ func main() {
 		instance.LoadFile(rcFile)
 	}
 
+	instance.Initialize()
+
 	// prog := vm.Program(
 	// 	// Initialize `a` = 10
 	// 	vm.Instruction(vm.Set, vm.Symbol("a"), vm.Value(10)),
+	// 	// vm.Instruction(vm.Breakpoint, vm.Value("program.r @ line 1")),
 
 	// 	// Set looping point `loop1` here
 	// 	vm.Instruction(vm.Label, vm.Symbol("loop1")),
@@ -24,20 +27,18 @@ func main() {
 	// 	vm.Instruction(vm.Goto, vm.Symbol("loop1")),
 	// )
 
-	prog := vm.Program(
+	instance.Load(vm.Symbol("_main"), vm.Function(
 		// Set a = 10
 		vm.Instruction(vm.Set, vm.Symbol("a"), vm.Value(10)),
-		vm.Instruction(vm.Breakpoint),
+		vm.Instruction(vm.Breakpoint, vm.Value("program.r @ line 1")),
 
 		// Update a = 20
 		vm.Instruction(vm.Set, vm.Symbol("a"), vm.Value(20)),
-		vm.Instruction(vm.Breakpoint),
 
 		// Update a = 30, set b = -10
 		vm.Instruction(vm.Set, vm.Symbol("a"), vm.Value(30)),
 		vm.Instruction(vm.Set, vm.Symbol("b"), vm.Value(-10)),
-		vm.Instruction(vm.Breakpoint),
-	)
+	))
 
-	instance.RunWithLabels(prog)
+	instance.RunWithLabels(entryPoint)
 }
